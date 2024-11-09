@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TagsCloudVisualization
+namespace TagsCloudVisualization;
+
+public class Size(int width, int height)
 {
-    public class Size
-    {
-    }
+    public int Width { get; } = width;
+    public int Height { get; } = height;
 }
+

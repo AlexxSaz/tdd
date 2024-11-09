@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace TagsCloudVisualization
 {
-    public class Rectangle
+    public class Rectangle(Size size)
     {
+        public Size Size { get; } = size;
+        public Point Center { get; } = new Point(0, 0);
     }
 }

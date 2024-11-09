@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TagsCloudVisualization
+namespace TagsCloudVisualization;
+
+public class Point(int x, int y)
 {
-    public class Point
-    {
-    }
+    public int X { get; } = x;
+    public int Y { get; } = y;
 }
+
