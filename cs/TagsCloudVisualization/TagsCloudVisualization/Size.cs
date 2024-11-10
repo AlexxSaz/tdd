@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace TagsCloudVisualization;
 
-namespace TagsCloudVisualization;
-
-public class Size(int width, int height)
+public class Size
 {
-    private int _width = width;
-    private int _height = height;
+    private int _width;
+    private int _height;
 
     public int Width
     {
@@ -31,6 +25,12 @@ public class Size(int width, int height)
                 throw new ArgumentOutOfRangeException($"{nameof(Height)} can't be less than 1 or large than 100");
             _height = value;
         } 
+    }
+
+    public Size(int width, int height)
+    {
+        Width = width;
+        Height = height;
     }
 }
 
