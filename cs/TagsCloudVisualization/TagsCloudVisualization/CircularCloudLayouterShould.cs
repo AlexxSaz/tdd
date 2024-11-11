@@ -15,21 +15,6 @@ public class CircularCloudLayouterShould
         _defaultCircularCloudLayouter = new CircularCloudLayouter(_defaultCenter);
     }
 
-    [Test]
-    public void HaveZeroRectangles_AfterCreation()
-    {
-        _defaultCircularCloudLayouter.Rectangles.Should().HaveCount(0);
-    }
-
-    [TestCase(1, 1)]
-    public void PutNextRectangle_ReturnAddedRectangle_AfterExecutionWith(int width, int height)
-    {
-        var size = new Size(width, height);
-        var expectedRectangle = new Rectangle(size, _defaultCenter);
-
-        _defaultCircularCloudLayouter.PutNextRectangle(size).Should().BeEquivalentTo(expectedRectangle);
-    }
-
     [TestCase(1, 1)]
     public void PutNextRectangle_ReturnRectangleWithBaseCenter_AfterFirstExecutionWith(int x, int y)
     {
@@ -45,15 +30,19 @@ public class CircularCloudLayouterShould
     public void PutNextRectangle_ReturnRectangleThatNotCrossingWithOther_AfterFewExecution()
     {
         var rnd = new Random();
-        _defaultCircularCloudLayouter.PutNextRectangle(new Size(rnd.Next(5, 20), rnd.Next(2, 5)));
-        _defaultCircularCloudLayouter.PutNextRectangle(new Size(rnd.Next(5, 20), rnd.Next(2, 5)));
-        _defaultCircularCloudLayouter.PutNextRectangle(new Size(rnd.Next(5, 20), rnd.Next(2, 5)));
+        var rectangleList = new List<Rectangle>();
+        for (var i = 0; i < 10; i++)
+        {
+            var currRectangle =
+                _defaultCircularCloudLayouter.PutNextRectangle(new Size(rnd.Next(5, 20), rnd.Next(2, 5)));
+            rectangleList.Add(currRectangle);
+        }
 
         var lastRectangle = _defaultCircularCloudLayouter.PutNextRectangle(new Size(rnd.Next(5, 20), rnd.Next(2, 5)));
 
-        foreach (var rectangle in _defaultCircularCloudLayouter.Rectangles.Where(rectangle => rectangle != lastRectangle))
+        foreach (var rectangle in rectangleList.Where(rectangle => rectangle != lastRectangle))
         {
-            lastRectangle.Center.Should().NotBeEquivalentTo(rectangle.Center);
+            lastRectangle.IntersectsWith(rectangle).Should().BeFalse();
         }
     }
 }

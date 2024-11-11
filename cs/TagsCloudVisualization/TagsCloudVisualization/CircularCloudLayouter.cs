@@ -6,7 +6,7 @@ public class CircularCloudLayouter
     private double _radius = 0;
     private double _angle = 0;
 
-    public LinkedList<Rectangle> Rectangles { get; } = new();
+    private LinkedList<Rectangle> _rectangles { get; } = new();
 
     public CircularCloudLayouter(Point center)
     {
@@ -16,7 +16,7 @@ public class CircularCloudLayouter
     public Rectangle PutNextRectangle(Size size)
     {
         Rectangle newRectangle;
-        if (Rectangles.Count == 0)
+        if (_rectangles.Count == 0)
         {
             newRectangle = new Rectangle(size, _center);
             _radius = Math.Sqrt(Math.Pow(newRectangle.Size.Width, 2) + Math.Pow(newRectangle.Size.Height, 2)) / 2;
@@ -24,8 +24,8 @@ public class CircularCloudLayouter
         else
             newRectangle = new Rectangle(size, GetFreeCenter(size));
         
-        Rectangles.AddLast(newRectangle);
-        return Rectangles.Last?.Value ?? newRectangle;
+        _rectangles.AddLast(newRectangle);
+        return _rectangles.Last?.Value ?? newRectangle;
     }
 
     private Point GetFreeCenter(Size size)
