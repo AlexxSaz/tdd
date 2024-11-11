@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace TagsCloudVisualization;
 
-public class Point(int x, int y)
+public class Point(double x, double y)
 {
-    public int X { get; } = x;
-    public int Y { get; } = y;
+    public double X { get; } = x;
+    public double Y { get; } = y;
 }
 
