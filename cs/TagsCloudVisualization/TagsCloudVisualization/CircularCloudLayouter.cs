@@ -4,7 +4,7 @@ namespace TagsCloudVisualization;
 
 public class CircularCloudLayouter(Point center)
 {
-    private readonly PointGenerator _pointGenerator = new PointGenerator(center);
+    private readonly PointGenerator _pointGenerator = new(center);
     private readonly List<Rectangle> _rectangles = [];
 
     public Rectangle PutNextRectangle(Size size)
@@ -14,12 +14,9 @@ public class CircularCloudLayouter(Point center)
                 $"{nameof(size.Width)} and {nameof(size.Height)} should be more than zero");
 
         Rectangle newRectangle;
-        while (true)
-        {
-            newRectangle = new Rectangle(_pointGenerator.GetNewPoint(), size);
-            if (!_rectangles.Any(rec => newRectangle.IntersectsWith(rec)))
-                break;
-        }
+        do newRectangle = new Rectangle(_pointGenerator.GetNewPoint(), size);
+        while (_rectangles.Any(rec => newRectangle.IntersectsWith(rec)));
+
         _rectangles.Add(newRectangle);
         return newRectangle;
     }

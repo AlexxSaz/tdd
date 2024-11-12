@@ -17,15 +17,26 @@ public class CircularCloudLayouterShould
         _defaultCircularCloudLayouter = new CircularCloudLayouter(_defaultCenter);
     }
 
-    [TestCase(1, 1)]
-    public void PutNextRectangle_ReturnRectangleWithBaseCenter_AfterFirstExecutionWith(int x, int y)
+    [TestCase(1, 1, 4, 2)]
+    public void PutNextRectangle_ReturnRectangleWithBaseCenter_AfterFirstExecutionWith(int x, int y, int width, int height)
     {
         var point = new Point(x, y);
-        var size = new Size(5, 2);
+        var size = new Size(width, height);
         var circularCloudLayouter = new CircularCloudLayouter(point);
-        var expectedCenter = new Point(x, y);
+        var expectedRectangle = new Rectangle(point, size);
 
-        circularCloudLayouter.PutNextRectangle(size).Should().BeEquivalentTo(expectedCenter);
+        circularCloudLayouter.PutNextRectangle(size).Should().BeEquivalentTo(expectedRectangle);
+    }
+
+    [TestCase(-1, 1)]
+    [TestCase(1, -1)]
+    [TestCase(0, 0)]
+    public void PutNextRectangle_ThrowArgumentOutOfRangeException_AfterExecutionWith(int width, int height)
+    {
+        var size = new Size(width, height);
+        var action = () => _defaultCircularCloudLayouter.PutNextRectangle(size);
+
+        action.Should().Throw<ArgumentOutOfRangeException>();
     }
 
     [Test]
@@ -33,18 +44,21 @@ public class CircularCloudLayouterShould
     {
         var rnd = new Random();
         var rectangleList = new List<Rectangle>();
+        var width = rnd.Next(5, 20);
+        var height = rnd.Next(2, 5);
+        var size = new Size(width, height);
         for (var i = 0; i < 10; i++)
         {
             var currRectangle =
-                _defaultCircularCloudLayouter.PutNextRectangle(new Size(rnd.Next(5, 20), rnd.Next(2, 5)));
+                _defaultCircularCloudLayouter.PutNextRectangle(size);
             rectangleList.Add(currRectangle);
         }
+        var lastRectangle = rectangleList[^1];
 
-        var lastRectangle = _defaultCircularCloudLayouter.PutNextRectangle(new Size(rnd.Next(5, 20), rnd.Next(2, 5)));
-
-        foreach (var rectangle in rectangleList.Where(rectangle => rectangle != lastRectangle))
+        for (var i = 0; i < rectangleList.Count - 1; i++)
         {
-            lastRectangle.IntersectsWith(rectangle).Should().BeFalse();
+            var currRectangle = rectangleList[i];
+            lastRectangle.IntersectsWith(currRectangle).Should().BeFalse();
         }
     }
 }
