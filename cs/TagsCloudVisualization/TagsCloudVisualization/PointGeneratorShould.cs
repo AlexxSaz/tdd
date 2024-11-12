@@ -25,20 +25,21 @@ public class PointGeneratorShould
         point.Should().BeEquivalentTo(_defaultCenter);
     }
 
-    [Test]
-    public void ReturnUniqPointEveryTime_AfterExecution()
+    [TestCase(1000)]
+    [TestCase(0)]
+    [TestCase(10000)]
+    public void GetNewPoint_ReturnUniqPointEvery100Step_AfterExecution(int stepCount)
     {
-        const int count = 101;
-        const int stepForCheck = 10;
+        const int stepToCheck = 100;
         var pointsHashset = new HashSet<Point>();
 
-        for (var i = 0; i < count; i++)
+        for (var i = 1; i <= stepCount; i++)
         {
             var currPoint = _defaultPointGenerator.GetNewPoint();
-            if (i % stepForCheck == 0)
+            if (i % stepToCheck == 0)
                 pointsHashset.Add(currPoint);
         }
 
-        pointsHashset.Should().HaveCount(count / stepForCheck);
+        pointsHashset.Should().HaveCount(stepCount / stepToCheck);
     }
 }

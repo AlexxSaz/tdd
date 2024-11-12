@@ -3,8 +3,8 @@
 namespace TagsCloudVisualization;
 public class PointGenerator(Point centerPoint)
 {
-    private const double _angleStep = Math.PI / 180;
-    private const double _radiusStep = 0.1;
+    private const double AngleStep = Math.PI / 360;
+    private const double RadiusStep = 0.01;
     private double _radius;
     private double _angle;
     private readonly Size _centerSize = new Size(centerPoint);
@@ -16,8 +16,8 @@ public class PointGenerator(Point centerPoint)
         var newPoint = new Point(newX, newY);
         newPoint = Point.Add(newPoint, _centerSize);
 
-        _angle += _angleStep;
-        _radius += _radiusStep;
+        _angle += AngleStep;
+        _radius += RadiusStep;
 
         return newPoint;
     }
