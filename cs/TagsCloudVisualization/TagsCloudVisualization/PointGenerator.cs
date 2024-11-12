@@ -15,9 +15,14 @@ public class PointGenerator(Point centerPoint)
         var newY = (int)(_radius * Math.Sin(_angle));
         var newPoint = new Point(newX, newY).MoveTo(_center);
 
-        _angle += AngleStep;
-        _radius += RadiusStep;
+        TakeAStep();
 
         return newPoint;
+    }
+
+    private void TakeAStep()
+    {
+        _angle += AngleStep;
+        _radius += RadiusStep;
     }
 }
