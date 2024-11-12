@@ -2,86 +2,26 @@
 
 namespace TagsCloudVisualization;
 
-public class CircularCloudLayouter
+public class CircularCloudLayouter(Point center)
 {
-
-    private readonly Point _center;
-    private readonly double _spiralStep = 10;
-    private readonly double _spiralRotation = 10;
-    private double _radius = 0;
-    private double _angle = 0;
-    private List<Rectangle> _rectangles = new();
-
-
-    public CircularCloudLayouter(Point center)
-    {
-        _center = center;
-    }
+    private readonly PointGenerator _pointGenerator = new PointGenerator(center);
+    private readonly List<Rectangle> _rectangles = [];
 
     public Rectangle PutNextRectangle(Size size)
     {
-        if (_rectangles.Count == 0)
-        {
-            _radius = GetRadiusFromSize(size);
-            _rectangles.Add(new Rectangle(_center, size));
-            return _rectangles[^1];
-        }
+        if (size.Width < 1 || size.Height < 1)
+            throw new ArgumentOutOfRangeException(
+                $"{nameof(size.Width)} and {nameof(size.Height)} should be more than zero");
 
-        var newRectangle = FindFreeSpaceOnSpiral(size);
-
-        _rectangles.Add(newRectangle);
-        return _rectangles[^1];
-    }
-
-    private Rectangle FindFreeSpaceOnSpiral(Size rectangleSize)
-    {
-        var angle = 0d;
-        var offset = _radius;
-        var spiralLength = 0d;
-        var spiralStep = GetRadiusFromSize(rectangleSize);
-
+        Rectangle newRectangle;
         while (true)
         {
-            var center = GetFreeCenter(rectangleSize, offset, spiralLength);
-            var rect = new Rectangle(center, rectangleSize);
-
-            if (!_rectangles.Any(r => r.IntersectsWith(rect)))
-            {
-                rect = MoveTowardsCenter(rect, rectangleSize);
-                _angle = angle;
-                _radius = offset;
-                return rect;
-            }
-
-            if (offset > _radius + spiralStep)
-                angle += _spiralRotation;
-            offset += spiralStep;
-            spiralLength += spiralStep;
+            newRectangle = new Rectangle(_pointGenerator.GetNewPoint(), size);
+            if (!_rectangles.Any(rec => newRectangle.IntersectsWith(rec)))
+                break;
         }
-    }
-
-    private Rectangle MoveTowardsCenter(Rectangle rect, Size rectangleSize)
-    {
-        var distanceToCenter = Math.Sqrt(Math.Pow(rect.X - _center.X, 2) + Math.Pow(rect.Y - _center.Y, 2));
-
-        var shift = Math.Min(distanceToCenter / 2, rectangleSize.Width / 4);
-
-        return new Rectangle( new Point((int)(rect.X - shift), (int)(rect.Y - shift)), rect.Size);
-    }
-
-    private static double GetRadiusFromSize(Size size)
-    {
-        return Math.Sqrt(Math.Pow(size.Width, 2) + Math.Pow(size.Height, 2)) / 2;
-    }
-
-    private Point GetFreeCenter(Size size, double radius, double spiralLength)
-    {
-        var angleRad = _angle * Math.PI / 180;
-
-        var x = (int)(_center.X + radius * Math.Cos(angleRad) + spiralLength * Math.Sin(angleRad));
-        var y = (int)(_center.Y + radius * Math.Sin(angleRad) - spiralLength * Math.Cos(angleRad));
-
-        return new Point(x, y);
+        _rectangles.Add(newRectangle);
+        return newRectangle;
     }
 }
 
