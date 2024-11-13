@@ -13,7 +13,8 @@ public class PointGenerator(Point centerPoint)
     {
         var newX = (int)(_radius * Math.Cos(_angle));
         var newY = (int)(_radius * Math.Sin(_angle));
-        var newPoint = new Point(newX, newY).MoveTo(_center);
+        var newPoint = new Point(newX, newY);
+        newPoint = Point.Add(newPoint, _center);
 
         TakeAStep();
 
