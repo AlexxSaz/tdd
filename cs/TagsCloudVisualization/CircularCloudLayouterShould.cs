@@ -8,14 +8,17 @@ namespace TagsCloudVisualization.Tests;
 public class CircularCloudLayouterShould
 {
     private Point _defaultCenter;
-    private CircularCloudLayouter _defaultCircularCloudLayouter;
+    private ICircularCloudLayouter _defaultCircularCloudLayouter;
 
     [SetUp]
     public void SetUp()
     {
         _defaultCenter = new Point(0, 0);
-        _defaultCircularCloudLayouter = new CircularCloudLayouter(_defaultCenter);
+        _defaultCircularCloudLayouter = GetCircularCloudLayouter(_defaultCenter);
     }
+
+    public virtual ICircularCloudLayouter GetCircularCloudLayouter(Point center) =>
+        new CircularCloudLayouter(center);
 
     [TestCase(1, 1, 4, 2)]
     public void PutNextRectangle_ReturnRectangleWithBaseCenter_AfterFirstExecutionWith(int x, int y, int width, int height)

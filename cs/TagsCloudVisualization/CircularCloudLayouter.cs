@@ -2,7 +2,7 @@
 
 namespace TagsCloudVisualization;
 
-public class CircularCloudLayouter(Point center)
+public class CircularCloudLayouter(Point center) : ICircularCloudLayouter
 {
     private readonly PointGenerator _pointGenerator = new(center);
     private readonly List<Rectangle> _rectangles = [];
@@ -11,7 +11,7 @@ public class CircularCloudLayouter(Point center)
     {
         if (size.Width < 1 || size.Height < 1)
             throw new ArgumentOutOfRangeException(
-                $"{nameof(size.Width)} and {nameof(size.Height)} should be more than zero");
+                $"{nameof(size.Width)} and {nameof(size.Height)} should be greater than zero");
 
         Rectangle newRectangle;
         do newRectangle = new Rectangle(_pointGenerator.GetNewPoint(), size);
