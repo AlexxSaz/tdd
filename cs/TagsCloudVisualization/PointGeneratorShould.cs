@@ -31,7 +31,7 @@ public class PointGeneratorShould
         var prevSpiralRadius = 0d;
         const int radiusCheckPeriod = 200;
 
-        for (var i = 0; i < 10001; i++)
+        for (var i = 1; i < 10001; i++)
         {
             var currPoint = _defaultPointGenerator.GetNewPoint();
             if (i % radiusCheckPeriod != 0) continue;
