@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 
 namespace TagsCloudVisualization;
+
 public class PointGenerator(Point centerPoint)
 {
     private const double AngleStep = Math.PI / 360;

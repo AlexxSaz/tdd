@@ -25,21 +25,22 @@ public class PointGeneratorShould
         point.Should().BeEquivalentTo(_defaultCenter);
     }
 
-    [TestCase(1000)]
-    [TestCase(0)]
-    [TestCase(10000)]
-    public void GetNewPoint_ReturnUniqPointEvery100Step_AfterExecution(int stepCount)
+    [Test]
+    public void GetNewPoint_ReturnPointWithGreaterRadius_AfterManyExecutions()
     {
-        const int stepToCheck = 100;
-        var pointsHashset = new HashSet<Point>();
+        var prevSpiralRadius = 0d;
+        const int radiusCheckPeriod = 200;
 
-        for (var i = 1; i <= stepCount; i++)
+        for (var i = 0; i < 10001; i++)
         {
             var currPoint = _defaultPointGenerator.GetNewPoint();
-            if (i % stepToCheck == 0)
-                pointsHashset.Add(currPoint);
+            if (i % radiusCheckPeriod != 0) continue;
+            var currSpiralRadius = GetDistanceBetween(_defaultCenter, currPoint);
+            currSpiralRadius.Should().BeGreaterThan(prevSpiralRadius);
+            prevSpiralRadius = currSpiralRadius;
         }
-
-        pointsHashset.Should().HaveCount(stepCount / stepToCheck);
     }
+
+    private static double GetDistanceBetween(Point point1, Point point2) =>
+        Math.Sqrt(Math.Pow((point1.X - point2.X), 2) + Math.Pow((point1.Y - point2.Y), 2));
 }
