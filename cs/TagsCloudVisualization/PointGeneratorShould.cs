@@ -2,7 +2,7 @@
 using FluentAssertions;
 using System.Drawing;
 
-namespace TagsCloudVisualization;
+namespace TagsCloudVisualization.Tests;
 
 [TestFixture]
 public class PointGeneratorShould
