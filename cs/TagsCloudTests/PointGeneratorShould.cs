@@ -1,26 +1,30 @@
-﻿using NUnit.Framework;
+﻿using System.Drawing;
 using FluentAssertions;
-using System.Drawing;
+using TagsCloudVisualization;
+using TagsCloudVisualization.Interfaces;
 
-namespace TagsCloudVisualization.Tests;
+namespace TagsCloudTests;
 
 [TestFixture]
 public class PointGeneratorShould
 {
-    private PointGenerator _defaultPointGenerator;
+    private IPointGenerator _defaultPointGenerator;
     private Point _defaultCenter;
 
     [SetUp]
     public void SetUp()
     {
         _defaultCenter = new Point(5, 2);
-        _defaultPointGenerator = new PointGenerator(_defaultCenter);
+        _defaultPointGenerator = GetPointGenerator(_defaultCenter);
     }
+
+    public virtual IPointGenerator GetPointGenerator(Point center) =>
+        new SpiralPointGenerator(center);
 
     [Test]
     public void GetNewPoint_ReturnCenter_AfterFirstExecution()
     {
-        var point = _defaultPointGenerator.GetNewPoint();
+        var point = _defaultPointGenerator.GeneratePoint();
 
         point.Should().BeEquivalentTo(_defaultCenter);
     }
@@ -33,7 +37,7 @@ public class PointGeneratorShould
 
         for (var i = 1; i < 10001; i++)
         {
-            var currPoint = _defaultPointGenerator.GetNewPoint();
+            var currPoint = _defaultPointGenerator.GeneratePoint();
             if (i % radiusCheckPeriod != 0) continue;
             var currSpiralRadius = GetDistanceBetween(_defaultCenter, currPoint);
             currSpiralRadius.Should().BeGreaterThan(prevSpiralRadius);
