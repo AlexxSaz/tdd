@@ -1,23 +1,24 @@
 ﻿using FluentAssertions;
-using NUnit.Framework;
 using System.Drawing;
+using TagsCloudVisualization;
+using TagsCloudVisualization.Interfaces;
 
-namespace TagsCloudVisualization.Tests;
+namespace TagsCloudTests;
 
 [TestFixture]
-public class CircularCloudLayouterShould
+public class CloudLayouterShould
 {
     private Point _defaultCenter;
-    private ICircularCloudLayouter _defaultCircularCloudLayouter;
+    private ICloudLayouter _defaultCloudLayouter;
 
     [SetUp]
     public void SetUp()
     {
         _defaultCenter = new Point(0, 0);
-        _defaultCircularCloudLayouter = GetCircularCloudLayouter(_defaultCenter);
+        _defaultCloudLayouter = GetCircularCloudLayouter(_defaultCenter);
     }
 
-    public virtual ICircularCloudLayouter GetCircularCloudLayouter(Point center) =>
+    public virtual ICloudLayouter GetCircularCloudLayouter(Point center) =>
         new CircularCloudLayouter(center);
 
     [TestCase(1, 1, 4, 2)]
@@ -40,19 +41,19 @@ public class CircularCloudLayouterShould
     {
         var rectangleSize = new Size(width, height);
 
-        var executePutNewRectangle = () => _defaultCircularCloudLayouter.PutNextRectangle(rectangleSize);
+        var executePutNewRectangle = () => _defaultCloudLayouter.PutNextRectangle(rectangleSize);
 
         executePutNewRectangle.Should().Throw<ArgumentOutOfRangeException>();
     }
 
-    [TestCase(10,100)]
-    [TestCase(2,40)]
+    [TestCase(10, 100)]
+    [TestCase(2, 40)]
     public void PutNextRectangle_ReturnRectangleThatNotIntersectsWithOther_AfterManyExecution(int lowestWidth, int largestWidth)
     {
         var rectangleSizes = GetSizes(lowestWidth, largestWidth);
 
         var rectangleList = rectangleSizes
-            .Select(size => _defaultCircularCloudLayouter.PutNextRectangle(size))
+            .Select(size => _defaultCloudLayouter.PutNextRectangle(size))
             .ToList();
 
         foreach (var rectangle in rectangleList)
@@ -72,7 +73,7 @@ public class CircularCloudLayouterShould
         var rectangleSizes = GetSizes(lowestWidth, largestWidth);
 
         var rectangleList = rectangleSizes
-            .Select(size => _defaultCircularCloudLayouter.PutNextRectangle(size))
+            .Select(size => _defaultCloudLayouter.PutNextRectangle(size))
             .ToList();
 
         foreach (var rectangle in rectangleList)
@@ -96,7 +97,7 @@ public class CircularCloudLayouterShould
         var rectangleSizes = GetSizes(lowest, largest);
 
         var rectangleList = rectangleSizes
-            .Select(size => _defaultCircularCloudLayouter.PutNextRectangle(size))
+            .Select(size => _defaultCloudLayouter.PutNextRectangle(size))
             .ToList();
 
         var fullSquare = rectangleList.Sum(rect => rect.Width * rect.Height);
@@ -112,7 +113,7 @@ public class CircularCloudLayouterShould
             };
 
             radius = corners
-                .Select(corner => 
+                .Select(corner =>
                     Math.Sqrt(Math.Pow(_defaultCenter.X - corner.X, 2) + Math.Pow(_defaultCenter.Y - corner.Y, 2)))
                 .Prepend(radius)
                 .Max();
@@ -128,4 +129,3 @@ public class CircularCloudLayouterShould
             .Select(number => new Size(number, number / 2))
             .Reverse();
 }
-
