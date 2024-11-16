@@ -1,37 +1,46 @@
 ﻿using FluentAssertions;
 using System.Drawing;
 using TagsCloudVisualization;
+using TagsCloudVisualization.Extensions;
 using TagsCloudVisualization.Interfaces;
 
 namespace TagsCloudTests;
 
 [TestFixture]
+[Parallelizable(scope: ParallelScope.All)]
 public class CloudLayouterShould
 {
     private Point _defaultCenter;
     private ICloudLayouter _defaultCloudLayouter;
+    private Random _random;
+
+    public CloudLayouterShould()
+    {
+        _random = new Random();
+        _defaultCenter = new Point(0, 0);
+    }
 
     [SetUp]
     public void SetUp()
     {
-        _defaultCenter = new Point(0, 0);
-        _defaultCloudLayouter = GetCircularCloudLayouter(_defaultCenter);
+        _defaultCloudLayouter = GetCloudLayouter(_defaultCenter);
     }
 
-    public virtual ICloudLayouter GetCircularCloudLayouter(Point center) =>
+    public virtual ICloudLayouter GetCloudLayouter(Point center) =>
         new CircularCloudLayouter(center);
 
-    [TestCase(1, 1, 4, 2)]
-    public void PutNextRectangle_ReturnRectangleWithBaseCenter_AfterFirstExecutionWith(int x, int y, int width, int height)
+    [Test]
+    [Repeat(5)]
+    public void PutNextRectangle_ReturnRectangleWithExpectedLocation_AfterFirstExecution()
     {
-        var center = new Point(x, y);
-        var size = new Size(width, height);
-        var circularCloudLayouter = GetCircularCloudLayouter(center);
-        var expectedRectangle = new Rectangle(center, size);
+        var expectedCenter = new Point(_random.Next(-10, 10), _random.Next(-10, 10));
+        var rectangleWidth = _random.Next(5, 100);
+        var rectangleSize = new Size(rectangleWidth, rectangleWidth / 2);
+        var cloudLayouter = GetCloudLayouter(expectedCenter);
 
-        var actualRectangle = circularCloudLayouter.PutNextRectangle(size);
+        var actualRectangle = cloudLayouter.PutNextRectangle(rectangleSize);
 
-        actualRectangle.Should().BeEquivalentTo(expectedRectangle);
+        actualRectangle.GetCentralPoint().Should().BeEquivalentTo(expectedCenter);
     }
 
     [TestCase(-1, 1)]
@@ -46,82 +55,49 @@ public class CloudLayouterShould
         executePutNewRectangle.Should().Throw<ArgumentOutOfRangeException>();
     }
 
-    [TestCase(10, 100)]
-    [TestCase(2, 40)]
-    public void PutNextRectangle_ReturnRectangleThatNotIntersectsWithOther_AfterManyExecution(int lowestWidth, int largestWidth)
+    [Test]
+    [Repeat(5)]
+    public void PutNextRectangle_ReturnRectangleThatNotIntersectsWithOther_AfterManyExecution()
     {
-        var rectangleSizes = GetSizes(lowestWidth, largestWidth);
+        var seenRectangles = new HashSet<Rectangle>();
+        var rectangleSizes = GetSizes(_random.Next(10, 100), _random.Next(100, 200));
+        var cloudLayouter = GetCloudLayouter(_defaultCenter);
 
         var rectangleList = rectangleSizes
-            .Select(size => _defaultCloudLayouter.PutNextRectangle(size))
-            .ToList();
+            .Select(size => cloudLayouter.PutNextRectangle(size));
 
         foreach (var rectangle in rectangleList)
         {
+            seenRectangles.Add(rectangle);
             rectangleList
-                .Where(rect => rect != rectangle)
+                .Where(rect => !seenRectangles.Contains(rect))
                 .All(rect => rect.IntersectsWith(rectangle))
                 .Should().BeFalse();
         }
     }
 
-    [TestCase(10, 20, ExpectedResult = 1.0)]
-    [TestCase(5, 20, ExpectedResult = 2.0)]
-    public double PutNextRectangle_ReturnRectangleThatCloseToCircle_AfterManyExecution(int lowestWidth, int largestWidth)
+    [Test]
+    [Repeat(5)]
+    public void PutNextRectangle_ReturnRectangleWithMaximumDensity_AfterManyExecution()
     {
-        int minX = 0, minY = 0, maxX = 0, maxY = 0;
-        var rectangleSizes = GetSizes(lowestWidth, largestWidth);
+        var rectangleWidth = _random.Next(5, 1000);
+        var rectangleSize = new Size(rectangleWidth, rectangleWidth / 2);
+        var halfOfDiagonal = Math.Sqrt(Math.Pow(rectangleSize.Height, 2) + Math.Pow(rectangleSize.Width, 2)) / 2;
+        var radii = new List<double>();
+        var rectangleCount = _random.Next(10, 200);
 
-        var rectangleList = rectangleSizes
-            .Select(size => _defaultCloudLayouter.PutNextRectangle(size))
-            .ToList();
-
-        foreach (var rectangle in rectangleList)
+        for (var i = 0; i < rectangleCount; i++)
         {
-            maxX = Math.Max(maxX, rectangle.Right);
-            maxY = Math.Max(maxY, rectangle.Bottom);
-            minX = Math.Max(minX, rectangle.Left);
-            minY = Math.Max(minY, rectangle.Top);
+            var currSquare = _defaultCloudLayouter.PutNextRectangle(rectangleSize);
+            var squareCenter = currSquare.GetCentralPoint();
+            radii.Add(squareCenter.GetDistanceTo(_defaultCenter));
         }
 
-        var width = maxX - minX;
-        var height = maxY - minY;
-
-        return width / height;
-    }
-
-    [TestCase(10, 20)]
-    [TestCase(5, 20)]
-    public void PutNextRectangle_ReturnRectanglesWithMaxDensity_AfterManyExecutions(int lowest, int largest)
-    {
-        var rectangleSizes = GetSizes(lowest, largest);
-
-        var rectangleList = rectangleSizes
-            .Select(size => _defaultCloudLayouter.PutNextRectangle(size))
-            .ToList();
-
-        var fullSquare = rectangleList.Sum(rect => rect.Width * rect.Height);
-        var radius = 0.0;
-        foreach (var rect in rectangleList)
-        {
-            var corners = new List<Point>
-            {
-                new(rect.Left, rect.Top),
-                new(rect.Right, rect.Top),
-                new(rect.Left, rect.Bottom),
-                new(rect.Right, rect.Bottom)
-            };
-
-            radius = corners
-                .Select(corner =>
-                    Math.Sqrt(Math.Pow(_defaultCenter.X - corner.X, 2) + Math.Pow(_defaultCenter.Y - corner.Y, 2)))
-                .Prepend(radius)
-                .Max();
-        }
-
-        var circleSquare = Math.PI * radius * radius;
-        var density = fullSquare / circleSquare;
-        density.Should().BeGreaterThan(0.4);
+        var radiusDifferences = radii
+            .Skip(1)
+            .Zip(radii, (current, previous) => current - previous);
+        foreach (var difference in radiusDifferences)
+            difference.Should().BeLessOrEqualTo(halfOfDiagonal);
     }
 
     private static IEnumerable<Size> GetSizes(int lowest, int largest) =>
