@@ -1,15 +1,28 @@
 ﻿using System.Drawing;
+using TagsCloudVisualization.Extensions;
 using TagsCloudVisualization.Interfaces;
 
 namespace TagsCloudVisualization;
 
-public class SpiralPointGenerator(Point centerPoint) : IPointGenerator
+public class SpiralPointGenerator : IPointGenerator
 {
-    private const double AngleStep = Math.PI / 360;
-    private const double RadiusStep = 0.01;
+    private const double AngleStep = Math.PI / 12;
+    private readonly double _radiusStep;
+    private readonly Size _center;
     private double _radius;
     private double _angle;
-    private readonly Size _center = new(centerPoint);
+
+    public SpiralPointGenerator(Point centerPoint, double radiusStep = 0.01, double startRadius = 0)
+    {
+        if (radiusStep <= 0)
+            throw new ArgumentOutOfRangeException($"{nameof(radiusStep)} should be greater than 0");
+        if (startRadius < 0)
+            throw new ArgumentOutOfRangeException($"{nameof(startRadius)} should be greater than or equal 0");
+
+        _radius = startRadius;
+        _radiusStep = radiusStep;
+        _center = new Size(centerPoint);
+    }
 
     public Point GeneratePoint()
     {
@@ -17,14 +30,9 @@ public class SpiralPointGenerator(Point centerPoint) : IPointGenerator
         var newY = (int)(_radius * Math.Sin(_angle));
         var newPoint = new Point(newX, newY).MoveTo(_center);
 
-        TakeAStep();
+        _angle += AngleStep;
+        _radius += _radiusStep;
 
         return newPoint;
-    }
-
-    private void TakeAStep()
-    {
-        _angle += AngleStep;
-        _radius += RadiusStep;
     }
 }

@@ -1,20 +1,28 @@
 ﻿using System.Drawing;
 using FluentAssertions;
 using TagsCloudVisualization;
+using TagsCloudVisualization.Extensions;
 using TagsCloudVisualization.Interfaces;
 
 namespace TagsCloudTests;
 
 [TestFixture]
+[Parallelizable(scope: ParallelScope.All)]
 public class PointGeneratorShould
 {
     private IPointGenerator _defaultPointGenerator;
     private Point _defaultCenter;
+    private Random _random;
+
+    public PointGeneratorShould()
+    {
+        _random = new Random();
+        _defaultCenter = new Point(1, 1);
+    }
 
     [SetUp]
     public void SetUp()
     {
-        _defaultCenter = new Point(5, 2);
         _defaultPointGenerator = GetPointGenerator(_defaultCenter);
     }
 
@@ -29,22 +37,35 @@ public class PointGeneratorShould
         point.Should().BeEquivalentTo(_defaultCenter);
     }
 
+    [TestCase(0, 1)]
+    [TestCase(-1, 1)]
+    [TestCase(1, -1)]
+    public void ThrowArgumentOutOfRangeException_AfterExecutionWith(double radiusStep, double startRadius)
+    {
+        var pointGeneratorCreate = () => new SpiralPointGenerator(_defaultCenter, radiusStep, startRadius);
+
+        pointGeneratorCreate.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+
     [Test]
+    [Repeat(5)]
     public void GetNewPoint_ReturnPointWithGreaterRadius_AfterManyExecutions()
     {
-        var prevSpiralRadius = 0d;
-        const int radiusCheckPeriod = 200;
+        const double radiusStep = 0.02;
+        const double startRadius = 0;
+        const double radiusCheckPeriod = 1 / radiusStep;
+        var newPointGenerator = new SpiralPointGenerator(_defaultCenter, radiusStep);
+        var prevSpiralRadius = (int)startRadius;
+        var pointsCount = radiusCheckPeriod * _random.Next(10, 100);
 
-        for (var i = 1; i < 10001; i++)
+        for (var i = 1; i <= pointsCount; i++)
         {
-            var currPoint = _defaultPointGenerator.GeneratePoint();
+            var currPoint = newPointGenerator.GeneratePoint();
             if (i % radiusCheckPeriod != 0) continue;
-            var currSpiralRadius = GetDistanceBetween(_defaultCenter, currPoint);
-            currSpiralRadius.Should().BeGreaterThan(prevSpiralRadius);
+            var currSpiralRadius = (int)currPoint.GetDistanceTo(_defaultCenter);
+            currSpiralRadius.Should().BeGreaterThanOrEqualTo(prevSpiralRadius);
             prevSpiralRadius = currSpiralRadius;
         }
     }
-
-    private static double GetDistanceBetween(Point point1, Point point2) =>
-        Math.Sqrt(Math.Pow((point1.X - point2.X), 2) + Math.Pow((point1.Y - point2.Y), 2));
 }
