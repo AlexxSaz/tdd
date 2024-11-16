@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using TagsCloudVisualization.Extensions;
 using TagsCloudVisualization.Interfaces;
 
 namespace TagsCloudVisualization;
@@ -15,10 +16,23 @@ public class CircularCloudLayouter(Point center) : ICloudLayouter
                 $"{nameof(size.Width)} and {nameof(size.Height)} should be greater than zero");
 
         Rectangle newRectangle;
-        do newRectangle = new Rectangle(_pointGenerator.GeneratePoint(), size);
-        while (_rectangles.Any(rec => newRectangle.IntersectsWith(rec)));
+        do newRectangle = GetNextRectangle(size);
+        while (_rectangles.Any(rec => rec.IntersectsWith(newRectangle)));
 
         _rectangles.Add(newRectangle);
         return newRectangle;
     }
+
+    private Rectangle GetNextRectangle(Size rectangleSize) =>
+        new(GetNextRectangleCenter(rectangleSize), rectangleSize);
+
+    private Point GetNextRectangleCenter(Size rectangleSize)
+    {
+        var rectangleCenter = ShiftRectangleLocationBy(rectangleSize);
+        var nextPoint = _pointGenerator.GeneratePoint().MoveTo(rectangleCenter);
+        return nextPoint;
+    }
+
+    private static Size ShiftRectangleLocationBy(Size rectangleSize) =>
+        new(-rectangleSize.Width / 2, rectangleSize.Height / 2);
 }
