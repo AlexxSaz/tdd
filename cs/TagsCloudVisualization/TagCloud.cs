@@ -8,7 +8,7 @@ public class TagCloud(ICloudLayouter? layouter)
     private readonly ICloudLayouter _layouter = layouter ?? new CircularCloudLayouter(new Point(0, 0));
     public List<Rectangle> Rectangles { get; } = [];
 
-    public void PutNextRectangle(Size size)
+    public void AddNextRectangleWith(Size size)
     {
         var nextRectangle = _layouter.PutNextRectangle(size);
         Rectangles.Add(nextRectangle);
