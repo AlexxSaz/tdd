@@ -9,30 +9,32 @@ public class SpiralPointGenerator : IPointGenerator
     private const double AngleStep = Math.PI / 360;
     private readonly double _radiusStep;
     private readonly Size _center;
-    private double _radius;
-    private double _angle;
 
-    public SpiralPointGenerator(Point centerPoint, double radiusStep = 0.01, double startRadius = 0)
+    public SpiralPointGenerator(Point centerPoint, double radiusStep = 0.01)
     {
         if (radiusStep <= 0)
             throw new ArgumentOutOfRangeException($"{nameof(radiusStep)} should be greater than 0");
-        if (startRadius < 0)
-            throw new ArgumentOutOfRangeException($"{nameof(startRadius)} should be greater than or equal 0");
 
-        _radius = startRadius;
         _radiusStep = radiusStep;
         _center = new Size(centerPoint);
     }
 
-    public Point GeneratePoint()
+    public IEnumerable<Point> GeneratePoint()
     {
-        var newX = (int)(_radius * Math.Cos(_angle));
-        var newY = (int)(_radius * Math.Sin(_angle));
-        var newPoint = new Point(newX, newY).MoveTo(_center);
+        var radius = 0d;
+        var angle = 0d;
 
-        _angle += AngleStep;
-        _radius += _radiusStep;
+        while (true)
+        {
+            var newX = (int)(radius * Math.Cos(angle));
+            var newY = (int)(radius * Math.Sin(angle));
+            var newPoint = new Point(newX, newY).MoveTo(_center);
 
-        return newPoint;
+            radius += _radiusStep;
+            angle += AngleStep;
+
+            yield return newPoint;
+        }
+        // ReSharper disable once IteratorNeverReturns
     }
 }

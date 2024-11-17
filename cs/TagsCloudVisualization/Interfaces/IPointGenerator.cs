@@ -4,5 +4,5 @@ namespace TagsCloudVisualization.Interfaces;
 
 public interface IPointGenerator
 {
-    public Point GeneratePoint();
+    public IEnumerable<Point> GeneratePoint();
 }

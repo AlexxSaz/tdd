@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using NUnit.Framework.Interfaces;
 using System.Drawing;
 using TagsCloudVisualization;
 using TagsCloudVisualization.Extensions;
