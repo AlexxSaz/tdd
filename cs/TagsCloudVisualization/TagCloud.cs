@@ -3,14 +3,22 @@ using TagsCloudVisualization.Interfaces;
 
 namespace TagsCloudVisualization;
 
-public class TagCloud(ICloudLayouter? layouter)
+public class TagCloud(ICloudLayouter layouter)
 {
-    private readonly ICloudLayouter _layouter = layouter ?? new CircularCloudLayouter(new Point(0, 0));
-    public List<Rectangle> Rectangles { get; } = [];
+    private readonly ICloudLayouter _layouter = layouter;
+    public List<Rectangle> Rectangles { get; } = new();
+    private int _maxRight = 0;
+    private int _maxBottom = 0;
+    private int _minLeft = int.MaxValue;
+    private int _minTop = int.MaxValue;
 
     public void AddNextRectangleWith(Size size)
     {
         var nextRectangle = _layouter.PutNextRectangle(size);
+        _maxRight = Math.Max(_maxRight, nextRectangle.Right);
+        _maxBottom = Math.Max(_maxBottom, nextRectangle.Bottom);
+        _minLeft = Math.Min(_minLeft, nextRectangle.Left);
+        _minTop = Math.Min(_minTop, nextRectangle.Top);
         Rectangles.Add(nextRectangle);
     }
 
@@ -21,8 +29,7 @@ public class TagCloud(ICloudLayouter? layouter)
             if (Rectangles.Count == 0)
                 return 0;
 
-            return Rectangles.Max(rect => rect.Right) -
-                   Rectangles.Min(rect => rect.Left);
+            return _maxRight - _minLeft;
         }
     }
 
@@ -33,14 +40,13 @@ public class TagCloud(ICloudLayouter? layouter)
             if (Rectangles.Count == 0)
                 return 0;
 
-            return Rectangles.Max(rect => rect.Bottom) -
-                   Rectangles.Min(rect => rect.Top);
+            return _maxBottom - _minTop;
         }
     }
 
     public int LeftBound =>
-        Rectangles.Min(r => r.Left);
+        _minLeft;
 
     public int TopBound =>
-        Rectangles.Min(r => r.Top);
+        _minTop;
 }
