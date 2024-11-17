@@ -37,24 +37,25 @@ public class PointGeneratorShould
     }
 
     [Test]
-    [Repeat(5)]
+    [Repeat(20)]
     public void GetNewPoint_ReturnPointWithGreaterRadius_AfterManyExecutions()
     {
-        const double radiusStep = 0.02;
-        const double radiusCheckPeriod = 1 / radiusStep;
-        var newPointGenerator = new SpiralPointGenerator(_defaultCenter, radiusStep);
-        var pointIterator = newPointGenerator.GeneratePoint().GetEnumerator();
-        var prevSpiralRadius = 0;
-        var pointsCount = radiusCheckPeriod * _random.Next(10, 100);
+        var newPointGenerator = new SpiralPointGenerator(_defaultCenter);
+        var countOfPoints = _random.Next(10, 200);
+        var points = newPointGenerator.GeneratePoint().Take(countOfPoints).ToArray();
 
-        for (var i = 1; i <= pointsCount; i++)
-        {
-            pointIterator.MoveNext();
-            var currPoint = pointIterator.Current;
-            if (i % radiusCheckPeriod != 0) continue;
-            var currSpiralRadius = (int)currPoint.GetDistanceTo(_defaultCenter);
-            currSpiralRadius.Should().BeGreaterThanOrEqualTo(prevSpiralRadius);
-            prevSpiralRadius = currSpiralRadius;
-        }
+        var distances = points.Select(p => p.GetDistanceTo(_defaultCenter)).ToArray();
+        var angles = points.Select(p => Math.Atan2(p.Y - _defaultCenter.Y, p.X - _defaultCenter.X)).ToArray();
+
+        distances
+            .Zip(distances.Skip(1), (a, b) => a <= b)
+            .All(x => x)
+            .Should()
+            .BeTrue();
+        angles
+            .Zip(angles.Skip(1), (a, b) => a <= b || Math.Abs(a - b) < 0.1)
+            .All(x => x)
+            .Should()
+            .BeTrue();
     }
 }
