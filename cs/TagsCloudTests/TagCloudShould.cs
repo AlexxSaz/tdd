@@ -47,7 +47,7 @@ public class TagCloudShould
 
     [Test]
     [Repeat(5)]
-    public void HaveExpectedWidth_AfterAddedFirstRectangleWith()
+    public void HaveExpectedWidth_AfterAddedFirstRectangle()
     {
         var width = _random.Next(1, 100);
         var newSize = new Size(width, 2);
@@ -61,7 +61,7 @@ public class TagCloudShould
 
     [Test]
     [Repeat(5)]
-    public void HaveExpectedHeight_AfterAddedFirstRectangleWith()
+    public void HaveExpectedHeight_AfterAddedFirstRectangle()
     {
         var height = _random.Next(1, 100);
         var newSize = new Size(2, height);
@@ -71,6 +71,40 @@ public class TagCloudShould
         currTagCloud.AddNextRectangleWith(newSize);
 
         currTagCloud.Height.Should().Be(height);
+    }
+
+    [Test]
+    [Repeat(5)]
+    public void HaveExpectedWidth_AfterAddedManyRectangles()
+    {
+        var width = _random.Next(1, 100);
+        var newSize = new Size(width, 2);
+        var circularCloudLayouter = new CircularCloudLayouter(_defaultCenter);
+        var currTagCloud = new TagCloud(circularCloudLayouter);
+        var rectanglesCount = _random.Next(5, 40);
+        var expectedWidth = rectanglesCount * width;
+
+        for (var i = 0; i < rectanglesCount; i++)
+            currTagCloud.AddNextRectangleWith(newSize);
+
+        currTagCloud.Width.Should().BeLessThanOrEqualTo(expectedWidth);
+    }
+
+    [Test]
+    [Repeat(5)]
+    public void HaveExpectedHeight_AfterAddedManyRectangles()
+    {
+        var height = _random.Next(1, 100);
+        var newSize = new Size(2, height);
+        var circularCloudLayouter = new CircularCloudLayouter(_defaultCenter);
+        var currTagCloud = new TagCloud(circularCloudLayouter);
+        var rectanglesCount = _random.Next(5, 40);
+        var expectedHeight = rectanglesCount * height;
+
+        for (var i = 0; i < rectanglesCount; i++)
+            currTagCloud.AddNextRectangleWith(newSize);
+
+        currTagCloud.Height.Should().BeLessThanOrEqualTo(expectedHeight);
     }
 
     [Test]
