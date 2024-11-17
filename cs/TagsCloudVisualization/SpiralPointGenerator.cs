@@ -6,7 +6,7 @@ namespace TagsCloudVisualization;
 
 public class SpiralPointGenerator : IPointGenerator
 {
-    private const double AngleStep = Math.PI / 12;
+    private const double AngleStep = Math.PI / 360;
     private readonly double _radiusStep;
     private readonly Size _center;
     private double _radius;
