@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Drawing;
-using TagsCloudVisualization.Extensions;
+﻿using System.Drawing;
 
 namespace TagsCloudVisualization;
 

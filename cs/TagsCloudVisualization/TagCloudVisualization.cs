@@ -25,7 +25,9 @@ public class TagCloudVisualization
                 graphics.DrawRectangle(new Pen(GetRandomBrush()), rectangleInFrame);
             }
         }
-        bitmap.Save(file);
+
+        using (bitmap)
+            bitmap.Save(file);
     }
 
     private static Rectangle MoveRectangleToImageFrame(Rectangle rectangle, Size imageCenter) =>
