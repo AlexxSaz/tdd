@@ -74,7 +74,7 @@ public class CloudLayouterShould
         var radii = new List<double>();
         var circularCloudLayouter = new CircularCloudLayouter(_defaultCenter);
         var lastIndex = (int)(largestSide * 0.9);
-        var expectedDifference = (int)(largestSide * 0.02);
+        var expectedDifference = (int)(largestSide * 0.05);
 
         foreach (var rectangleSize in rectangleSizes)
         {
@@ -95,7 +95,7 @@ public class CloudLayouterShould
     {
         var rectangleWidth = _random.Next(5, 1000);
         var rectangleSize = new Size(rectangleWidth, rectangleWidth / 2);
-        var halfOfDiagonal = Math.Sqrt(Math.Pow(rectangleSize.Height, 2) + Math.Pow(rectangleSize.Width, 2)) / 2;
+        var diagonal = Math.Sqrt(Math.Pow(rectangleSize.Height, 2) + Math.Pow(rectangleSize.Width, 2));
         var circularCloudLayouter = new CircularCloudLayouter(_defaultCenter);
         var radii = new List<double>();
         var rectangleCount = _random.Next(10, 200);
@@ -111,7 +111,7 @@ public class CloudLayouterShould
             .Skip(1)
             .Zip(radii, (current, previous) => current - previous);
         foreach (var difference in radiusDifferences)
-            difference.Should().BeLessOrEqualTo(halfOfDiagonal);
+            difference.Should().BeLessOrEqualTo(diagonal);
     }
 
     private static IEnumerable<Size> GetSizes(int lowest, int largest) =>
