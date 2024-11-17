@@ -37,4 +37,10 @@ public class TagCloud(ICloudLayouter? layouter)
                    Rectangles.Min(rect => rect.Top);
         }
     }
+
+    public int LeftBound =>
+        Rectangles.Min(r => r.Left);
+
+    public int TopBound =>
+        Rectangles.Min(r => r.Top);
 }
