@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using NUnit.Framework.Interfaces;
 using System.Drawing;
 using TagsCloudVisualization;
 using TagsCloudVisualization.Extensions;
@@ -48,74 +47,48 @@ public class CloudLayouterShould
     [Repeat(5)]
     public void PutNextRectangle_ReturnRectangleThatNotIntersectsWithOther_AfterManyExecution()
     {
-        var seenRectangles = new HashSet<Rectangle>();
-        var rectangleSizes = GetSizes(_random.Next(10, 100), _random.Next(100, 200));
+        var rectangleSizes = GenerateInfiniteSizes().Take(_random.Next(10, 200));
         var cloudLayouter = GetCloudLayouter(_defaultCenter);
 
-        var rectangleList = rectangleSizes
-            .Select(size => cloudLayouter.PutNextRectangle(size));
+        var rectangles = rectangleSizes
+            .Select(size => cloudLayouter.PutNextRectangle(size)).ToArray();
 
-        foreach (var rectangle in rectangleList)
-        {
-            seenRectangles.Add(rectangle);
-            rectangleList
-                .Where(rect => !seenRectangles.Contains(rect))
-                .All(rect => rect.IntersectsWith(rectangle))
-                .Should().BeFalse();
-        }
+        for (var i = 0; i < rectangles.Length; i++)
+            for (var j = i + 1; j < rectangles.Length; j++)
+                rectangles[i].IntersectsWith(rectangles[j]).Should().BeFalse();
     }
 
     [Test]
-    [Repeat(5)]
-    public void PutNextRectangle_ReturnLastRectanglesWithCloseRadius_AfterManyExecution()
+    [Repeat(20)]
+    public void PutNextRectangle_ReturnRectanglesInCircle_AfterManyExecution()
     {
-        var largestSide = _random.Next(100, 200);
-        var rectangleSizes = GetSizes(_random.Next(5, 10), largestSide);
-        var radii = new List<double>();
+        var rectangleSizes = GenerateInfiniteSizes().Take(_random.Next(10, 100));
         var circularCloudLayouter = new CircularCloudLayouter(_defaultCenter);
-        var lastIndex = (int)(largestSide * 0.9);
-        var expectedDifference = (int)(largestSide * 0.05);
 
-        foreach (var rectangleSize in rectangleSizes)
-        {
-            var currSquare = circularCloudLayouter.PutNextRectangle(rectangleSize);
-            var squareCenter = currSquare.GetCentralPoint();
-            radii.Add(Math.Round(squareCenter.GetDistanceTo(_defaultCenter)));
-        }
+        var rectanglesList = rectangleSizes.Select(rectangleSize => circularCloudLayouter.PutNextRectangle(rectangleSize)).ToList();
 
-        for (var i = lastIndex; i < largestSide; i++)
-        {
-            (radii[i] - radii[i - 1]).Should().BeLessOrEqualTo(expectedDifference);
-        }
+        var pointOnCircle = rectanglesList[^1].GetCentralPoint();
+        var circleRadius = pointOnCircle.GetDistanceTo(_defaultCenter);
+        var fromRectangleToCenterDistances =
+            rectanglesList.Select(rectangle => rectangle.GetCentralPoint().GetDistanceTo(_defaultCenter));
+
+        var sumRectanglesSquare = rectanglesList.Sum(rectangle => rectangle.Width * rectangle.Height);
+        var circleSquare = circleRadius * circleRadius * Math.PI;
+        var precision = circleSquare * 0.475;
+
+        circleSquare.Should().BeApproximately(sumRectanglesSquare, precision);
+        foreach (var distanceToCenter in fromRectangleToCenterDistances)
+            distanceToCenter.Should().BeLessOrEqualTo(circleRadius + 2);
     }
 
-    [Test]
-    [Repeat(5)]
-    public void PutNextRectangle_ReturnRectangleWithMaximumDensity_AfterManyExecution()
+    private static IEnumerable<Size> GenerateInfiniteSizes()
     {
-        var rectangleWidth = _random.Next(5, 1000);
-        var rectangleSize = new Size(rectangleWidth, rectangleWidth / 2);
-        var diagonal = Math.Sqrt(Math.Pow(rectangleSize.Height, 2) + Math.Pow(rectangleSize.Width, 2));
-        var circularCloudLayouter = new CircularCloudLayouter(_defaultCenter);
-        var radii = new List<double>();
-        var rectangleCount = _random.Next(10, 200);
-
-        for (var i = 0; i < rectangleCount; i++)
+        var random = new Random();
+        while (true)
         {
-            var currSquare = circularCloudLayouter.PutNextRectangle(rectangleSize);
-            var squareCenter = currSquare.GetCentralPoint();
-            radii.Add(Math.Round(squareCenter.GetDistanceTo(_defaultCenter)));
+            var rectangleWidth = random.Next(10, 100);
+            var rectangleHeight = random.Next(1, 25);
+            yield return new Size(rectangleWidth, rectangleHeight);
         }
-
-        var radiusDifferences = radii
-            .Skip(1)
-            .Zip(radii, (current, previous) => current - previous);
-        foreach (var difference in radiusDifferences)
-            difference.Should().BeLessOrEqualTo(diagonal);
     }
-
-    private static IEnumerable<Size> GetSizes(int lowest, int largest) =>
-        Enumerable.Range(lowest, largest)
-            .Select(number => new Size(number, number / 2))
-            .Reverse();
 }
