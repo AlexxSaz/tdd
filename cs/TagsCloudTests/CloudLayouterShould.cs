@@ -66,23 +66,25 @@ public class CloudLayouterShould
 
     [Test]
     [Repeat(5)]
-    public void PutNextRectangle_ReturnFirstFourRectangleWithEqualRadius_AfterExecutionWithSquares() //TODO: Сделать тест на окружность
+    public void PutNextRectangle_ReturnLastRectanglesWithCloseRadius_AfterManyExecution()
     {
-        var squareSide = _random.Next(5, 50);
-        var squareSize = new Size(squareSide, squareSide);
+        var largestSide = _random.Next(100, 200);
+        var rectangleSizes = GetSizes(_random.Next(5, 10), largestSide);
         var radii = new List<double>();
         var circularCloudLayouter = new CircularCloudLayouter(_defaultCenter);
+        var lastIndex = (int)(largestSide * 0.9);
+        var expectedDifference = (int)(largestSide * 0.02);
 
-        for (var i = 0; i < 5; i++)
+        foreach (var rectangleSize in rectangleSizes)
         {
-            var currSquare = circularCloudLayouter.PutNextRectangle(squareSize);
+            var currSquare = circularCloudLayouter.PutNextRectangle(rectangleSize);
             var squareCenter = currSquare.GetCentralPoint();
             radii.Add(Math.Round(squareCenter.GetDistanceTo(_defaultCenter)));
         }
 
-        for (var i = 2; i < 5; i++)
+        for (var i = lastIndex; i < largestSide; i++)
         {
-            radii[i - 1].Should().Be(radii[i]);
+            (radii[i] - radii[i - 1]).Should().BeLessOrEqualTo(expectedDifference);
         }
     }
 
@@ -101,7 +103,7 @@ public class CloudLayouterShould
         {
             var currSquare = circularCloudLayouter.PutNextRectangle(rectangleSize);
             var squareCenter = currSquare.GetCentralPoint();
-            radii.Add(squareCenter.GetDistanceTo(_defaultCenter));
+            radii.Add(Math.Round(squareCenter.GetDistanceTo(_defaultCenter)));
         }
 
         var radiusDifferences = radii
