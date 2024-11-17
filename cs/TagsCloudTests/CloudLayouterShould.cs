@@ -11,19 +11,12 @@ namespace TagsCloudTests;
 public class CloudLayouterShould
 {
     private Point _defaultCenter;
-    private ICloudLayouter _defaultCloudLayouter;
     private Random _random;
 
     public CloudLayouterShould()
     {
         _random = new Random();
         _defaultCenter = new Point(0, 0);
-    }
-
-    [SetUp]
-    public void SetUp()
-    {
-        _defaultCloudLayouter = GetCloudLayouter(_defaultCenter);
     }
 
     public virtual ICloudLayouter GetCloudLayouter(Point center) =>
@@ -49,8 +42,9 @@ public class CloudLayouterShould
     public void PutNextRectangle_ThrowArgumentOutOfRangeException_AfterExecutionWith(int width, int height)
     {
         var rectangleSize = new Size(width, height);
+        var circularCloudLayouter = new CircularCloudLayouter(_defaultCenter);
 
-        var executePutNewRectangle = () => _defaultCloudLayouter.PutNextRectangle(rectangleSize);
+        var executePutNewRectangle = () => circularCloudLayouter.PutNextRectangle(rectangleSize);
 
         executePutNewRectangle.Should().Throw<ArgumentOutOfRangeException>();
     }
@@ -78,17 +72,40 @@ public class CloudLayouterShould
 
     [Test]
     [Repeat(5)]
+    public void PutNextRectangle_ReturnFirstFourRectangleWithEqualRadius_AfterExecutionWithSquares() //TODO: Сделать тест на окружность
+    {
+        var squareSide = _random.Next(5, 50);
+        var squareSize = new Size(squareSide, squareSide);
+        var radii = new List<double>();
+        var circularCloudLayouter = new CircularCloudLayouter(_defaultCenter);
+
+        for (var i = 0; i < 5; i++)
+        {
+            var currSquare = circularCloudLayouter.PutNextRectangle(squareSize);
+            var squareCenter = currSquare.GetCentralPoint();
+            radii.Add(Math.Round(squareCenter.GetDistanceTo(_defaultCenter)));
+        }
+
+        for (var i = 2; i < 5; i++)
+        {
+            radii[i - 1].Should().Be(radii[i]);
+        }
+    }
+
+    [Test]
+    [Repeat(5)]
     public void PutNextRectangle_ReturnRectangleWithMaximumDensity_AfterManyExecution()
     {
         var rectangleWidth = _random.Next(5, 1000);
         var rectangleSize = new Size(rectangleWidth, rectangleWidth / 2);
         var halfOfDiagonal = Math.Sqrt(Math.Pow(rectangleSize.Height, 2) + Math.Pow(rectangleSize.Width, 2)) / 2;
+        var circularCloudLayouter = new CircularCloudLayouter(_defaultCenter);
         var radii = new List<double>();
         var rectangleCount = _random.Next(10, 200);
 
         for (var i = 0; i < rectangleCount; i++)
         {
-            var currSquare = _defaultCloudLayouter.PutNextRectangle(rectangleSize);
+            var currSquare = circularCloudLayouter.PutNextRectangle(rectangleSize);
             var squareCenter = currSquare.GetCentralPoint();
             radii.Add(squareCenter.GetDistanceTo(_defaultCenter));
         }
