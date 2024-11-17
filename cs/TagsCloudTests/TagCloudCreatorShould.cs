@@ -8,8 +8,8 @@ namespace TagsCloudTests;
 [Parallelizable(ParallelScope.All)]
 public class TagCloudCreatorShould
 {
-    private Point _defaultCenter = new(0, 0);
-    private Random _random = new();
+    private readonly Point _defaultCenter = new(0, 0);
+    private readonly Random _random = new();
 
     [Test]
     [Repeat(5)]

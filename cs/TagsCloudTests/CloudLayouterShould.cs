@@ -10,14 +10,8 @@ namespace TagsCloudTests;
 [Parallelizable(scope: ParallelScope.All)]
 public class CloudLayouterShould
 {
-    private Point _defaultCenter;
-    private Random _random;
-
-    public CloudLayouterShould()
-    {
-        _random = new Random();
-        _defaultCenter = new Point(0, 0);
-    }
+    private readonly Point _defaultCenter = new(0, 0);
+    private readonly Random _random = new();
 
     public virtual ICloudLayouter GetCloudLayouter(Point center) =>
         new CircularCloudLayouter(center);

@@ -10,14 +10,8 @@ namespace TagsCloudTests;
 [Parallelizable(scope: ParallelScope.All)]
 public class TagCloudShould
 {
-    private Random _random;
-    private Point _defaultCenter;
-
-    public TagCloudShould()
-    {
-        _random = new Random();
-        _defaultCenter = new Point(1, 1);
-    }
+    private readonly Point _defaultCenter = new(1, 1);
+    private readonly Random _random = new();
 
     [Test]
     [Repeat(5)]

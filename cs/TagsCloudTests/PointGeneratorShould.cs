@@ -10,15 +10,9 @@ namespace TagsCloudTests;
 [Parallelizable(scope: ParallelScope.All)]
 public class PointGeneratorShould
 {
+    private readonly Point _defaultCenter = new(1, 1);
+    private readonly Random _random = new();
     private IPointGenerator _defaultPointGenerator;
-    private Point _defaultCenter;
-    private Random _random;
-
-    public PointGeneratorShould()
-    {
-        _random = new Random();
-        _defaultCenter = new Point(1, 1);
-    }
 
     [SetUp]
     public void SetUp()
