@@ -12,6 +12,7 @@ public class CloudLayouterShould
 {
     private readonly Point _defaultCenter = new(0, 0);
     private readonly Random _random = new();
+    private readonly ISizesGenerator _defaultSizesGenerator = new RandomSizesGenerator();
 
     public virtual ICloudLayouter GetCloudLayouter(Point center) =>
         new CircularCloudLayouter(center);
@@ -47,7 +48,9 @@ public class CloudLayouterShould
     [Repeat(5)]
     public void PutNextRectangle_ReturnRectangleThatNotIntersectsWithOther_AfterManyExecution()
     {
-        var rectangleSizes = GenerateInfiniteSizes().Take(_random.Next(10, 200));
+        var rectangleSizes = _defaultSizesGenerator
+            .GenerateSize()
+            .Take(_random.Next(10, 200));
         var cloudLayouter = GetCloudLayouter(_defaultCenter);
 
         var rectangles = rectangleSizes
@@ -62,7 +65,9 @@ public class CloudLayouterShould
     [Repeat(20)]
     public void PutNextRectangle_ReturnRectanglesInCircle_AfterManyExecution()
     {
-        var rectangleSizes = GenerateInfiniteSizes().Take(_random.Next(10, 100));
+        var rectangleSizes = _defaultSizesGenerator
+            .GenerateSize()
+            .Take(_random.Next(10, 100));
         var circularCloudLayouter = new CircularCloudLayouter(_defaultCenter);
 
         var rectanglesList = rectangleSizes.Select(rectangleSize => circularCloudLayouter.PutNextRectangle(rectangleSize)).ToList();
@@ -79,16 +84,5 @@ public class CloudLayouterShould
         circleSquare.Should().BeApproximately(sumRectanglesSquare, precision);
         foreach (var distanceToCenter in fromRectangleToCenterDistances)
             distanceToCenter.Should().BeLessOrEqualTo(circleRadius + 2);
-    }
-
-    private static IEnumerable<Size> GenerateInfiniteSizes()
-    {
-        var random = new Random();
-        while (true)
-        {
-            var rectangleWidth = random.Next(10, 100);
-            var rectangleHeight = random.Next(1, 25);
-            yield return new Size(rectangleWidth, rectangleHeight);
-        }
     }
 }
