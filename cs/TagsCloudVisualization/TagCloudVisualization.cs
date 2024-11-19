@@ -3,6 +3,7 @@ using TagsCloudVisualization.Extensions;
 
 namespace TagsCloudVisualization;
 
+[System.Runtime.Versioning.SupportedOSPlatform("windows")]
 public class TagCloudVisualization
 {
     private static readonly Random _random = new();

@@ -2,6 +2,7 @@
 
 namespace TagsCloudVisualization;
 
+[System.Runtime.Versioning.SupportedOSPlatform("windows")]
 public static class Program
 {
     public static void Main(string[] args)
