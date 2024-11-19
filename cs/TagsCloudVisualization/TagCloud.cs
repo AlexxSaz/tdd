@@ -22,27 +22,11 @@ public class TagCloud(ICloudLayouter layouter)
         Rectangles.Add(nextRectangle);
     }
 
-    public int Width
-    {
-        get
-        {
-            if (Rectangles.Count == 0)
-                return 0;
+    public int Width =>
+        Rectangles.Count == 0 ? 0 : _maxRight - _minLeft;
 
-            return _maxRight - _minLeft;
-        }
-    }
-
-    public int Height
-    {
-        get
-        {
-            if (Rectangles.Count == 0)
-                return 0;
-
-            return _maxBottom - _minTop;
-        }
-    }
+    public int Height =>
+        Rectangles.Count == 0 ? 0 : _maxBottom - _minTop;
 
     public int LeftBound =>
         _minLeft;
