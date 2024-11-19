@@ -12,13 +12,10 @@ public class PointGeneratorShould
     private readonly Point _defaultCenter = new(1, 1);
     private readonly Random _random = new();
 
-    protected virtual IPointGenerator GetPointGenerator(Point center) =>
-        new SpiralPointGenerator(center);
-
     [Test]
     public void GetNewPoint_ReturnCenter_AfterFirstExecution()
     {
-        var pointGenerator = GetPointGenerator(_defaultCenter);
+        var pointGenerator = new SpiralPointGenerator(_defaultCenter);
         using var newPointIterator = pointGenerator
             .GeneratePoint()
             .GetEnumerator();
