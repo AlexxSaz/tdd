@@ -13,18 +13,22 @@ public class PointGeneratorShould
     private readonly Point _defaultCenter = new(1, 1);
     private readonly Random _random = new();
 
-    public virtual IPointGenerator GetPointGenerator(Point center) =>
+    protected virtual IPointGenerator GetPointGenerator(Point center) =>
         new SpiralPointGenerator(center);
 
     [Test]
     public void GetNewPoint_ReturnCenter_AfterFirstExecution()
     {
         var pointGenerator = GetPointGenerator(_defaultCenter);
-        var newPointIterator = pointGenerator.GeneratePoint().GetEnumerator();
+        using var newPointIterator = pointGenerator
+            .GeneratePoint()
+            .GetEnumerator();
         newPointIterator.MoveNext();
         var point = newPointIterator.Current;
 
-        point.Should().BeEquivalentTo(_defaultCenter);
+        point
+            .Should()
+            .BeEquivalentTo(_defaultCenter);
     }
 
     [TestCase(0)]
@@ -33,7 +37,9 @@ public class PointGeneratorShould
     {
         var pointGeneratorCreate = () => new SpiralPointGenerator(_defaultCenter, radiusStep);
 
-        pointGeneratorCreate.Should().Throw<ArgumentOutOfRangeException>();
+        pointGeneratorCreate
+            .Should()
+            .Throw<ArgumentOutOfRangeException>();
     }
 
     [Test]
@@ -42,10 +48,17 @@ public class PointGeneratorShould
     {
         var newPointGenerator = new SpiralPointGenerator(_defaultCenter);
         var countOfPoints = _random.Next(10, 200);
-        var points = newPointGenerator.GeneratePoint().Take(countOfPoints).ToArray();
+        var points = newPointGenerator
+            .GeneratePoint()
+            .Take(countOfPoints)
+            .ToArray();
 
-        var distances = points.Select(p => p.GetDistanceTo(_defaultCenter)).ToArray();
-        var angles = points.Select(p => Math.Atan2(p.Y - _defaultCenter.Y, p.X - _defaultCenter.X)).ToArray();
+        var distances = points
+            .Select(p => p.GetDistanceTo(_defaultCenter))
+            .ToArray();
+        var angles = points
+            .Select(p => Math.Atan2(p.Y - _defaultCenter.Y, p.X - _defaultCenter.X))
+            .ToArray();
 
         distances
             .Zip(distances.Skip(1), (a, b) => a <= b)

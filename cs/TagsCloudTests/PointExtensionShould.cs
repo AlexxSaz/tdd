@@ -29,11 +29,13 @@ public class PointExtensionShould
         MoveTo_CheckShift(point, new Size(0, 0), point);
     }
 
-    public void MoveTo_CheckShift(Point point, Size movementDirection, Point expectedPoint)
+    private static void MoveTo_CheckShift(Point point, Size movementDirection, Point expectedPoint)
     {
         var movedPoint = point.MoveTo(movementDirection);
 
-        movedPoint.Should().BeEquivalentTo(expectedPoint);
+        movedPoint
+            .Should()
+            .BeEquivalentTo(expectedPoint);
     }
 }
 

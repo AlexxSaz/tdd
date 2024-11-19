@@ -53,14 +53,21 @@ public class TagCloudShould
 
         tagCloud.AddNextRectangleWith(firstRectangleSize);
 
-        tagCloud.Rectangles[0].GetCentralPoint().Should().Be(center);
+        tagCloud.Rectangles[0]
+            .GetCentralPoint()
+            .Should()
+            .Be(center);
     }
 
     [Test]
     public void HaveZeroSize_AfterCreation()
     {
-        _defaultTagCloud.Width.Should().Be(0);
-        _defaultTagCloud.Height.Should().Be(0);
+        _defaultTagCloud.Width
+            .Should()
+            .Be(0);
+        _defaultTagCloud.Height
+            .Should()
+            .Be(0);
     }
 
     [Test]
@@ -72,7 +79,9 @@ public class TagCloudShould
 
         _defaultTagCloud.AddNextRectangleWith(newSize);
 
-        _defaultTagCloud.Width.Should().Be(width);
+        _defaultTagCloud.Width
+            .Should()
+            .Be(width);
     }
 
     [Test]
@@ -84,7 +93,9 @@ public class TagCloudShould
 
         _defaultTagCloud.AddNextRectangleWith(newSize);
 
-        _defaultTagCloud.Height.Should().Be(height);
+        _defaultTagCloud.Height
+            .Should()
+            .Be(height);
     }
 
     [Test]
@@ -99,7 +110,9 @@ public class TagCloudShould
         for (var i = 0; i < rectanglesCount; i++)
             _defaultTagCloud.AddNextRectangleWith(newSize);
 
-        _defaultTagCloud.Width.Should().BeLessThanOrEqualTo(expectedWidth);
+        _defaultTagCloud.Width
+            .Should()
+            .BeLessThanOrEqualTo(expectedWidth);
     }
 
     [Test]
@@ -114,7 +127,9 @@ public class TagCloudShould
         for (var i = 0; i < rectanglesCount; i++)
             _defaultTagCloud.AddNextRectangleWith(newSize);
 
-        _defaultTagCloud.Height.Should().BeLessThanOrEqualTo(expectedHeight);
+        _defaultTagCloud.Height
+            .Should()
+            .BeLessThanOrEqualTo(expectedHeight);
     }
 
     [Test]
@@ -127,6 +142,8 @@ public class TagCloudShould
         for (var i = 0; i < expectedCount; i++)
             _defaultTagCloud.AddNextRectangleWith(unionSize);
 
-        _defaultTagCloud.Rectangles.Should().HaveCount(expectedCount);
+        _defaultTagCloud.Rectangles
+            .Should()
+            .HaveCount(expectedCount);
     }
 }

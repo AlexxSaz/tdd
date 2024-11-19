@@ -12,8 +12,7 @@ public class SpiralPointGenerator : IPointGenerator
 
     public SpiralPointGenerator(Point centerPoint, double radiusStep = 0.01)
     {
-        if (radiusStep <= 0)
-            throw new ArgumentOutOfRangeException($"{nameof(radiusStep)} should be greater than 0");
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(radiusStep);
 
         _radiusStep = radiusStep;
         _center = new Size(centerPoint);

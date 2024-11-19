@@ -19,7 +19,9 @@ public class RectangleExtensionShould
         var expectedCentralPoint = new Point(rectangleLocation.X + rectangleSize.Width / 2,
             rectangleLocation.Y - rectangleSize.Height / 2);
 
-        rectangle.GetCentralPoint().Should().Be(expectedCentralPoint);
+        rectangle
+            .GetCentralPoint()
+            .Should()
+            .Be(expectedCentralPoint);
     }
 }
-

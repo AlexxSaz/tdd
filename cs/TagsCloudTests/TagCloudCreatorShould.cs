@@ -28,6 +28,8 @@ public class TagCloudCreatorShould
 
         var expectedTagCloud = TagCloudCreator.Create(rectangleSizes, expectedCloudLayouter);
 
-        defaultTagCloud.Should().BeEquivalentTo(expectedTagCloud);
+        defaultTagCloud
+            .Should()
+            .BeEquivalentTo(expectedTagCloud);
     }
 }
