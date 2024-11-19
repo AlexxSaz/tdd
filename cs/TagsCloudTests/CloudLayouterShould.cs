@@ -5,10 +5,11 @@ using TagsCloudVisualization;
 using TagsCloudVisualization.Extensions;
 using TagsCloudVisualization.Interfaces;
 
+[assembly: Parallelizable(ParallelScope.Children)]
+
 namespace TagsCloudTests;
 
 [TestFixture]
-[Parallelizable(scope: ParallelScope.All)]
 public class CloudLayouterShould
 {
     private readonly Point _defaultCenter = new(0, 0);
@@ -92,8 +93,8 @@ public class CloudLayouterShould
         var fromRectangleToCenterDistances =
             rectanglesList
                 .Select(rectangle => rectangle
-                .GetCentralPoint()
-                .GetDistanceTo(_defaultCenter));
+                    .GetCentralPoint()
+                    .GetDistanceTo(_defaultCenter));
 
         var sumRectanglesSquare = rectanglesList.Sum(rectangle => rectangle.Width * rectangle.Height);
         var circleSquare = circleRadius * circleRadius * Math.PI;

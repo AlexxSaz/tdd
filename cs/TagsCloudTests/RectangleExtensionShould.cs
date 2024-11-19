@@ -5,7 +5,6 @@ using TagsCloudVisualization.Extensions;
 namespace TagsCloudTests;
 
 [TestFixture]
-[Parallelizable(scope: ParallelScope.All)]
 public class RectangleExtensionShould
 {
     [Test]

@@ -8,7 +8,6 @@ using TagsCloudVisualization.Interfaces;
 namespace TagsCloudTests;
 
 [TestFixture]
-[Parallelizable(scope: ParallelScope.All)]
 [FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
 public class TagCloudShould
 {

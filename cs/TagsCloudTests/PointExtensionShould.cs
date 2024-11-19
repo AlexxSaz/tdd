@@ -5,7 +5,6 @@ using TagsCloudVisualization.Extensions;
 namespace TagsCloudTests;
 
 [TestFixture]
-[Parallelizable(scope: ParallelScope.All)]
 public class PointExtensionShould
 {
     [TestCase(0, 0, 1, 2)]

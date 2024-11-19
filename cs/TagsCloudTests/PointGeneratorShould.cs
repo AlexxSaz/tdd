@@ -7,7 +7,6 @@ using TagsCloudVisualization.Interfaces;
 namespace TagsCloudTests;
 
 [TestFixture]
-[Parallelizable(scope: ParallelScope.All)]
 public class PointGeneratorShould
 {
     private readonly Point _defaultCenter = new(1, 1);
