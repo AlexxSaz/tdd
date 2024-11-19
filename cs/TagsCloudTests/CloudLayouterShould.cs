@@ -15,9 +15,6 @@ public class CloudLayouterShould
     private readonly Random _random = new();
     private readonly ISizesGenerator _defaultSizesGenerator = new RandomSizesGenerator();
 
-    public virtual ICloudLayouter GetCloudLayouter(Point center) =>
-        new CircularCloudLayouter(center);
-
     [Test]
     [Repeat(5)]
     public void PutNextRectangle_ReturnRectangleWithExpectedLocation_AfterFirstExecution()
@@ -27,7 +24,7 @@ public class CloudLayouterShould
             .GenerateSize()
             .Take(1)
             .First();
-        var cloudLayouter = GetCloudLayouter(expectedCenter);
+        var cloudLayouter = new CircularCloudLayouter(expectedCenter);
 
         var actualRectangle = cloudLayouter.PutNextRectangle(rectangleSize);
 
@@ -45,7 +42,7 @@ public class CloudLayouterShould
         var rectangleSize = new Size(width, height);
         var circularCloudLayouter = new CircularCloudLayouter(_defaultCenter);
 
-        var executePutNewRectangle = () => 
+        var executePutNewRectangle = () =>
             circularCloudLayouter
                 .PutNextRectangle(rectangleSize);
 
@@ -61,18 +58,18 @@ public class CloudLayouterShould
         var rectangleSizes = _defaultSizesGenerator
             .GenerateSize()
             .Take(_random.Next(10, 200));
-        var cloudLayouter = GetCloudLayouter(_defaultCenter);
+        var cloudLayouter = new CircularCloudLayouter(_defaultCenter);
 
         var rectangles = rectangleSizes
             .Select(size => cloudLayouter.PutNextRectangle(size))
             .ToArray();
 
         for (var i = 0; i < rectangles.Length; i++)
-            for (var j = i + 1; j < rectangles.Length; j++)
-                rectangles[i]
-                    .IntersectsWith(rectangles[j])
-                    .Should()
-                    .BeFalse();
+        for (var j = i + 1; j < rectangles.Length; j++)
+            rectangles[i]
+                .IntersectsWith(rectangles[j])
+                .Should()
+                .BeFalse();
     }
 
     [Test]
@@ -81,7 +78,7 @@ public class CloudLayouterShould
     {
         var rectangleSizes = _defaultSizesGenerator
             .GenerateSize()
-            .Take(_random.Next(10, 100));
+            .Take(_random.Next(100, 200));
         var circularCloudLayouter = new CircularCloudLayouter(_defaultCenter);
 
         var rectanglesList = rectangleSizes
@@ -89,17 +86,18 @@ public class CloudLayouterShould
                 .PutNextRectangle(rectangleSize))
             .ToList();
 
-        var pointOnCircle = rectanglesList[^1].GetCentralPoint();
-        var circleRadius = pointOnCircle.GetDistanceTo(_defaultCenter);
+        var circleRadius = rectanglesList
+            .Select(rectangle => rectangle.GetCentralPoint())
+            .Max(pointOnCircle => pointOnCircle.GetDistanceTo(_defaultCenter));
         var fromRectangleToCenterDistances =
             rectanglesList
                 .Select(rectangle => rectangle
-                    .GetCentralPoint()
-                    .GetDistanceTo(_defaultCenter));
+                .GetCentralPoint()
+                .GetDistanceTo(_defaultCenter));
 
         var sumRectanglesSquare = rectanglesList.Sum(rectangle => rectangle.Width * rectangle.Height);
         var circleSquare = circleRadius * circleRadius * Math.PI;
-        var precision = circleSquare * 0.475;
+        var precision = circleSquare * 0.375;
 
         using (new AssertionScope())
         {
@@ -109,7 +107,7 @@ public class CloudLayouterShould
             foreach (var distanceToCenter in fromRectangleToCenterDistances)
                 distanceToCenter
                     .Should()
-                    .BeLessOrEqualTo(circleRadius + 2);
+                    .BeLessOrEqualTo(circleRadius);
         }
     }
 }
